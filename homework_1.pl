@@ -1,8 +1,37 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
+
+
+use utf8;
 
 #Чтение с потока ввода.
-$a = <STDIN>;
-print "\nINPUT:\t$a";
+
+close(STDERR);
+
+if (@ARGV){
+	$a  = join "", @ARGV;
+}
+else{
+	$a = <>;
+	chomp $a;
+	$a =~ s/\s//g;	
+}
+
+my $co = 0;
+foreach $l (split //, $a){
+	if ($l eq '('){
+		$co += 1;
+	}
+	elsif ($l eq ')'){
+		$co -= 1;
+	}
+}
+
+if ($co != 0){
+	print "Input error found.\n";
+	exit 1;
+}
+print "\nINPUT:\t$a\n";
+
 #Резервирование двух списков.
 my @stack;
 my @stack2;
@@ -27,19 +56,28 @@ my @stack2;
 
 =cut
 
+
+
 #Разбиение строки на символы + итерирование.
 foreach $l (split //, $a){
+
 	if ($l eq '('){
 		push @stack, $l;
+
 	}
 	elsif ($l eq ')'){
+			
+
+		push @stack2, ' ';		
 		my $d = pop @stack;
 		while ($d ne '('){
 			push @stack2, $d;
-			$d = pop@stack;
+			push @stack2, ' ';
+			$d = pop @stack;
 		}
 	}
 	elsif ($l eq '*' or $l eq '/' or $l eq '^' or $l eq '-' or $l eq '+'){
+		push @stack2, ' ';
 		if (@stack.length != 0){
 			my $r = pop @stack;
 			push @stack, $r;
@@ -50,33 +88,66 @@ foreach $l (split //, $a){
 				#их записи в результирующий стек.
 				pop @stack;
 				push @stack2, $r;
+				push @stack2, ' ';
 				$r = pop @stack;
 				push @stack, $r;
-			}
 
+			}
 		}
 		push @stack, $l;
-	}
-	elsif ($l eq "\n"){
-		print "\n";
-	}
+	}	
 	else{
-		push @stack2, $l;
+		push @stack2, $l;		
 	}
 }
 #Сброс остатка стека в результирующий стек.
 foreach $e (@stack){
+	push @stack2, ' ';
 	push @stack2, $e;
 }
+
 #Вывод обратной польской нотации (RPN).
 print "RPN:\t";
-foreach $s (@stack2){
-	print $s;
-}
+print @stack2;
 print "\n";
 
 #Замена символа '^' на символы '**', т.к. в синтаксисе языка '^' - xor.
-$a =~ s/\^/\*\*/;
+
+$r = $a;
+$a =~ s/\^/\*\*/g;
 #Расчет выражения.
 $d = eval($a);
-print "RESULT:\t$d\n";
+if ($d != ""){
+	print "EVAL_RESULT:\t$d\n";
+}
+else{
+	print "EvalError!\n";
+	exit 1;
+}
+
+
+
+my @stack3;
+my $answ = 0;
+
+foreach $e (split / /, join '', @stack2){
+	if ($e eq '*' or $e eq '/' or $e eq '^' or $e eq '-' or $e eq '+'){
+		#Если попался оператор, извлекаем 2 операдна и вычисляем операцию.
+		$r1 = pop @stack3;		
+		$r2 = pop @stack3;
+		$tmp = eval($r2.$e.$r1);
+		push @stack3, $tmp;
+		$answ = $tmp;
+	}
+	#Сделано для исключения пустых символов.
+	elsif ($e eq ""){
+	}
+	else{
+		push @stack3, $e;
+	}
+}
+print "RPN_RESULT:\t$answ\n";
+
+
+
+

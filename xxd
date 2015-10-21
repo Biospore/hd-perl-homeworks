@@ -1,0 +1,63 @@
+#!/usr/bin/perl
+
+use utf8;
+
+use File::stat;
+
+my $filename = $ARGV[0];
+
+
+sub work(){
+	my $fh = read_file();
+	my $byte;
+	my $str = "";
+	my $row = 16;
+	my $size = stat($filename)->size;
+	my @arr;
+	my @arr2;
+	$str = sprintf "%06X:   ", $row;
+	for (my $i = 1; $i< $size + 1; $i++){
+
+		read ($fh, $byte, 1) ==0;
+		my $code = ord($byte);		
+		if ($byte =~ /[a-zA-Z0-9`!@#\$%^&*()<>,?'":;-~_=+.*{}\/\\]/){
+			push @arr, $byte;
+		}
+		else{
+			push @arr, ".";
+		}
+		push @arr2, ord($byte);
+
+		
+		$str = $str . sprintf "%02X ", $code;
+
+		if ($i%16 == 0 or $i == $size){
+			if ($i == $size){
+				my $adds = " " x (3*(16 -($size % 16)));
+				$str = $str . $adds;
+			}
+			print_row($str, join "", @arr);
+			$#arr = -1;
+			$row += 16;
+			$str = sprintf "%06X:   ", $row;
+		}		
+	}
+	close $fh;	
+}
+
+sub print_row(){
+	my($str, $stra) = @_;
+	print $str."\t".$stra."\n";		
+}
+
+sub read_file(){
+	my $fh;
+	open $fh, '<', $filename ;
+	binmode $fh;
+	return $fh;
+}
+if (not -f $filename){
+	print "Error!\n";
+}else{
+	work();
+}
