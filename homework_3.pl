@@ -2,10 +2,6 @@
 
 use utf8;
 
-use File::Find;
-use File::Path qw(make_path);
-use File::Copy;
-
 my $fh;
 my $target = "";
 
@@ -17,6 +13,79 @@ sub read_config(){
 	open $fh, '<', $filename
 		or die "No config file!\n";
 }
+
+sub work(){
+	my $flag = 1;
+	while (my $line = <$fh>){
+		chomp $line;
+		if ($flag){
+			$target = $line;
+			
+			unless(-e "$target/new"){
+				mkdir("$target/new");
+			} else{
+				if (-e "$target/old"){
+#					system("rm -r $line/old");
+					rmdir ("$target/old")
+				}
+				rename ("$target/new", "$target/old");
+				rmdir ("$target/old");
+#				system("cp -r $line/new $line/old");
+#				system("rm -r $line/new");
+				mkdir("$target/new");
+			}
+			$flag = 0;
+		} else{
+			my @tmp = split('/', $line);
+			my $destf = pop @tmp;
+			mkdir ("$target/new/$destf");
+			copydirstruct($line, $target."/new/".$destf);
+		}
+
+	}
+}
+
+sub copydirstruct(){
+	my ($from, $to) = @_;
+	opendir $dh, $from
+		or die "Error while opening '$from'\n";
+	my @stack;
+	while (readdir $dh){
+		chomp;
+		if (-d $from.'/'.$_ and $_ ne "." and $_ ne ".."){
+			mkdir ("$to/$_");
+#			print "Created path: '$to/$_'\n";
+#			print "Stacked: '$_'\n";
+			push @stack, $_;
+		}elsif (-f $from.'/'.$_){
+			copyfile("$from/$_", "$to/$_");
+#			print "Copied to file: '$to/$_'\n";
+		}
+	}
+	foreach $path (@stack){
+#		print "Recursively on $path\n";
+		copydirstruct($from."/".$path, $to."/".$path);
+	}
+}
+
+sub copyfile(){
+	my ($from, $to) = @_;
+	open my $fhfrom, '<', $from
+		or die "Error while opening '$from'\n";
+	open my $fhto, '>', $to
+		or die "Error while opening '$to'\n";
+	while (<$fhfrom>){
+		print $fhto $_;
+	}
+	close $fhfrom;
+	close $fhto;
+}
+
+
+read_config();
+work();
+=pod
+
 
 sub wanted(){
 	my $far = substr($File::Find::dir, length($target));
@@ -41,6 +110,8 @@ sub work(){
 				if (-e "$line/old"){
 					system("rm -r $line/old");
 				}
+				rename("$line/new", "$line/old");
+
 				system("cp -r $line/new $line/old");
 				system("rm -r $line/new");
 				make_path("$line/new");
@@ -55,7 +126,7 @@ sub work(){
 
 read_config();
 work();
-=pod
+#=pod
 config file format:
 	path to store
 	list

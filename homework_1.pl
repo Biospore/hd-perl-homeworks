@@ -57,7 +57,6 @@ my @stack2;
 =cut
 
 
-
 #Разбиение строки на символы + итерирование.
 foreach $l (split //, $a){
 
@@ -101,7 +100,7 @@ foreach $l (split //, $a){
 	}
 }
 #Сброс остатка стека в результирующий стек.
-foreach $e (@stack){
+foreach $e (reverse @stack){
 	push @stack2, ' ';
 	push @stack2, $e;
 }
@@ -135,7 +134,25 @@ foreach $e (split / /, join '', @stack2){
 		#Если попался оператор, извлекаем 2 операдна и вычисляем операцию.
 		$r1 = pop @stack3;		
 		$r2 = pop @stack3;
-		$tmp = eval($r2.$e.$r1);
+		if ($e eq "^"){
+			$tmp = degree($r2, $r1);
+		}
+		elsif ($e eq "*"){
+			$tmp = $r2*$r1;
+		}
+		elsif ($e eq "/"){
+			$tmp = $r2/$r1;
+		}
+		elsif ($e eq "-"){
+			$tmp = $r2-$r1;
+		}
+		elsif ($e eq "+"){
+			$tmp = $r2+$r1;
+		}
+		else{
+			$tmp = 0;
+		}
+#		$tmp = eval($r2.$e.$r1);
 		push @stack3, $tmp;
 		$answ = $tmp;
 	}
@@ -149,5 +166,13 @@ foreach $e (split / /, join '', @stack2){
 print "RPN_RESULT:\t$answ\n";
 
 
-
+sub degree(){
+	my ($left, $right) = @_;
+	my $const = $left;
+	while ($right > 1){
+		$left *= $const;
+		$right -= 1;
+	}
+	return $left;
+}
 
