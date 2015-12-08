@@ -20,7 +20,7 @@ sub work(){
 		chomp $line;
 		if ($flag){
 			$target = $line;
-			
+
 			unless(-e "$target/new"){
 				mkdir("$target/new");
 			} else{
@@ -29,7 +29,7 @@ sub work(){
 					rmdir ("$target/old")
 				}
 				rename ("$target/new", "$target/old");
-				rmdir ("$target/old");
+				deldir ("$target/old");                    
 #				system("cp -r $line/new $line/old");
 #				system("rm -r $line/new");
 				mkdir("$target/new");
@@ -43,6 +43,18 @@ sub work(){
 		}
 
 	}
+}
+
+sub deldir {
+    my $dirtodel = pop;
+    my $sep = '/';
+    opendir(DIR, $dirtodel);
+    my @files = readdir(DIR);
+    closedir(DIR);
+    @files = grep { !/^\.{1,2}/ } @files;
+    @files = map { $_ = "$dirtodel$sep$_"} @files;
+    @files = map { (-d $_)?deldir($_):unlink($_) } @files;
+    rmdir($dirtodel);
 }
 
 sub copydirstruct(){
@@ -119,8 +131,8 @@ sub work(){
 			$flag = 0;
 		}
 		else{
-			find(\&wanted, $line);			
-		}		
+			find(\&wanted, $line);
+		}
 	}
 }
 

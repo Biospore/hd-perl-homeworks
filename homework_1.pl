@@ -17,11 +17,17 @@ else{
 }
 
 my $co = 0;
+my $si = 0;
 foreach $l (split //, $a){
 	if ($l eq '('){
+		$si ++;
 		$co += 1;
 	}
 	elsif ($l eq ')'){
+		if ($si == 0){
+			print "Input error found.\n";			
+			exit 1;
+		}
 		$co -= 1;
 	}
 }
@@ -77,7 +83,7 @@ foreach $l (split //, $a){
 	}
 	elsif ($l eq '*' or $l eq '/' or $l eq '^' or $l eq '-' or $l eq '+'){
 		push @stack2, ' ';
-		if (@stack.length != 0){
+		if (length(@stack) != 0){
 			my $r = pop @stack;
 			push @stack, $r;
 			while ($prior{$l} <= $prior{$r}){
@@ -135,7 +141,7 @@ foreach $e (split / /, join '', @stack2){
 		$r1 = pop @stack3;		
 		$r2 = pop @stack3;
 		if ($e eq "^"){
-			$tmp = degree($r2, $r1);
+			$tmp = $r2**$r1;
 		}
 		elsif ($e eq "*"){
 			$tmp = $r2*$r1;
@@ -165,7 +171,7 @@ foreach $e (split / /, join '', @stack2){
 }
 print "RPN_RESULT:\t$answ\n";
 
-
+=comm
 sub degree(){
 	my ($left, $right) = @_;
 	my $const = $left;
@@ -175,4 +181,4 @@ sub degree(){
 	}
 	return $left;
 }
-
+=cut
