@@ -13,7 +13,7 @@ if (@ARGV){
 else{
 	$a = <>;
 	chomp $a;
-	$a =~ s/\s//g;	
+	$a =~ s/\s//g;
 }
 
 my $co = 0;
@@ -24,8 +24,8 @@ foreach $l (split //, $a){
 		$co += 1;
 	}
 	elsif ($l eq ')'){
-		if ($si == 0){
-			print "Input error found.\n";			
+		if ($co == 0){
+			print "Input error found.\n";
 			exit 1;
 		}
 		$co -= 1;
@@ -71,9 +71,9 @@ foreach $l (split //, $a){
 
 	}
 	elsif ($l eq ')'){
-			
 
-		push @stack2, ' ';		
+
+		push @stack2, ' ';
 		my $d = pop @stack;
 		while ($d ne '('){
 			push @stack2, $d;
@@ -83,7 +83,7 @@ foreach $l (split //, $a){
 	}
 	elsif ($l eq '*' or $l eq '/' or $l eq '^' or $l eq '-' or $l eq '+'){
 		push @stack2, ' ';
-		if (length(@stack) != 0){
+		if (scalar @stack != 0){
 			my $r = pop @stack;
 			push @stack, $r;
 			while ($prior{$l} <= $prior{$r}){
@@ -100,9 +100,9 @@ foreach $l (split //, $a){
 			}
 		}
 		push @stack, $l;
-	}	
+	}
 	else{
-		push @stack2, $l;		
+		push @stack2, $l;
 	}
 }
 #Сброс остатка стека в результирующий стек.
@@ -138,7 +138,7 @@ my $answ = 0;
 foreach $e (split / /, join '', @stack2){
 	if ($e eq '*' or $e eq '/' or $e eq '^' or $e eq '-' or $e eq '+'){
 		#Если попался оператор, извлекаем 2 операдна и вычисляем операцию.
-		$r1 = pop @stack3;		
+		$r1 = pop @stack3;
 		$r2 = pop @stack3;
 		if ($e eq "^"){
 			$tmp = $r2**$r1;
