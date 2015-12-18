@@ -15,7 +15,7 @@ while (<$fh>){
     }
 }
 close $fh;
-foreach my $word (reverse sort {$words{$a} <=> $words{$b}} keys %words){
+foreach my $word (sort {$words{$b} <=> $words{$a}} keys %words){
 
     printf "%-16s\t%s\n", $word, $words{$word};
 }
