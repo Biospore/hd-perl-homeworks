@@ -8,10 +8,11 @@ open my $fh, '<', $filename
 
 while (<$fh>){
     chomp;
-    $_ =~ s/[\,\.]/ /g;
+    $_ =~ s/[,\.]/ /g;
     foreach my $word (split /\s+/, $_){
-
-        $words{lc $word}++;
+        if ($word ne ''){
+            $words{lc $word}++;
+        }
     }
 }
 close $fh;
