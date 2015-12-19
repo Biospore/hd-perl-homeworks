@@ -122,7 +122,7 @@ $r = $a;
 $a =~ s/\^/\*\*/g;
 #Расчет выражения.
 $d = eval($a);
-if ($d != ""){
+if ($d ne ""){
 	print "EVAL_RESULT:\t$d\n";
 }
 else{
